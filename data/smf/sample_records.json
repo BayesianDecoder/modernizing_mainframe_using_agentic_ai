@@ -1,0 +1,145 @@
+{
+  "_comment": "Sample SMF records showing the raw format before parsing into SQLite.",
+  "_note": "In production these come as binary files offloaded from z/OS every 4 hours.",
+  "_types": {
+    "type_30": "Job accounting — one record per job step completion",
+    "type_72": "RMF workload — one record per LPAR per hour"
+  },
+
+  "type_30_job_accounting": [
+    {
+      "_smf_type": 30,
+      "_subtype": 5,
+      "job_name":     "PAYJOB",
+      "job_id":       "JOB14511",
+      "lpar":         "LPAR-1",
+      "date":         "2024-06-01",
+      "start_time":   "01:00:07",
+      "end_time":     "02:48:23",
+      "elapsed_mins": 108.3,
+      "cpu_seconds":  6547,
+      "mips":         4100,
+      "io_count":     312890,
+      "return_code":  0,
+      "status":       "SUCCESS",
+      "step_name":    "STEP010",
+      "pgm_name":     "PAYROLL",
+      "account":      "ACCT-PAY"
+    },
+    {
+      "_smf_type": 30,
+      "_subtype": 5,
+      "job_name":     "BILLJOB",
+      "job_id":       "JOB14523",
+      "lpar":         "LPAR-2",
+      "date":         "2024-06-01",
+      "start_time":   "03:30:15",
+      "end_time":     "07:47:43",
+      "elapsed_mins": 257.5,
+      "cpu_seconds":  12480,
+      "mips":         5200,
+      "io_count":     512000,
+      "return_code":  8,
+      "status":       "FAILED",
+      "step_name":    "STEP020",
+      "pgm_name":     "BILLING",
+      "account":      "ACCT-BIL",
+      "error_msg":    "IEC141I 013-60,IFG0194E,STEP020,BILLJOB,CHARGEIN,CHARGE.DETAIL.DATA HELD BY ENQUEUE"
+    },
+    {
+      "_smf_type": 30,
+      "_subtype": 5,
+      "job_name":     "BILLJOB",
+      "job_id":       "JOB14531",
+      "lpar":         "LPAR-2",
+      "date":         "2024-06-01",
+      "start_time":   "07:52:00",
+      "end_time":     "10:09:18",
+      "elapsed_mins": 137.3,
+      "cpu_seconds":  7812,
+      "mips":         5200,
+      "io_count":     498000,
+      "return_code":  0,
+      "status":       "SUCCESS",
+      "step_name":    "STEP020",
+      "pgm_name":     "BILLING",
+      "account":      "ACCT-BIL",
+      "note":         "RESTART AFTER CICS CANCEL TASK(CHRG)"
+    },
+    {
+      "_smf_type": 30,
+      "_subtype": 5,
+      "job_name":     "NIGHTLY",
+      "job_id":       "JOB14539",
+      "lpar":         "LPAR-3",
+      "date":         "2024-06-01",
+      "start_time":   "10:15:00",
+      "end_time":     "12:44:30",
+      "elapsed_mins": 149.5,
+      "cpu_seconds":  8934,
+      "mips":         7100,
+      "io_count":     218000,
+      "return_code":  0,
+      "status":       "SUCCESS",
+      "step_name":    "STEP020",
+      "pgm_name":     "REPORTING",
+      "account":      "ACCT-RPT",
+      "note":         "DELAYED — BILLJOB LATE DUE TO CICS CONTENTION"
+    }
+  ],
+
+  "type_72_lpar_performance": [
+    {
+      "_smf_type": 72,
+      "_subtype": 3,
+      "lpar":       "LPAR-1",
+      "label":      "Production-Payments",
+      "date":       "2024-06-01",
+      "hour":       "01:00",
+      "avg_mips":   3864,
+      "peak_mips":  4100,
+      "cpu_pct":    62.1,
+      "io_rate_mb": 245.8
+    },
+    {
+      "_smf_type": 72,
+      "_subtype": 3,
+      "lpar":       "LPAR-2",
+      "label":      "Batch-Processing",
+      "date":       "2024-06-01",
+      "hour":       "07:30",
+      "avg_mips":   6890,
+      "peak_mips":  8400,
+      "cpu_pct":    98.6,
+      "_alert":     "CRITICAL — LPAR at capacity. BILLJOB + CICS retries causing spike."
+    },
+    {
+      "_smf_type": 72,
+      "_subtype": 3,
+      "lpar":       "LPAR-3",
+      "label":      "Customer-Reporting",
+      "date":       "2024-06-01",
+      "hour":       "07:30",
+      "avg_mips":   7033,
+      "peak_mips":  7200,
+      "cpu_pct":    98.6,
+      "io_rate_mb": 192.4,
+      "_alert":     "HIGH — LPAR-3 near capacity during NIGHTLY run."
+    }
+  ],
+
+  "r4ha_calculation_example": {
+    "_note": "Rolling 4-Hour Average used for IBM billing tier calculation",
+    "window": "07:00 to 11:00 AM on 2024-06-01",
+    "hourly_totals_all_lpars": {
+      "07:00": 11800,
+      "08:00": 14700,
+      "09:00": 11900,
+      "10:00": 9800
+    },
+    "rolling_4hr_avg": 12050,
+    "tier_boundary":   10000,
+    "tier_breached":   true,
+    "estimated_cost_impact": "$340,000 annually if this pattern repeats monthly"
+  }
+}

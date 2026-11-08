@@ -1,0 +1,51 @@
+//PAYJOB   JOB (ACCT-PAY),'MONTHLY PAYROLL RUN',
+//             CLASS=A,MSGCLASS=X,NOTIFY=&SYSUID
+//*
+//* JOB:      PAYJOB
+//* SCHEDULE: 1ST OF EVERY MONTH AT 01:00 AM
+//* LPAR:     LPAR-1
+//* OWNER:    PAYROLL-TEAM
+//* SLA:      MUST COMPLETE BY 03:00 AM
+//* DEPENDS:  NONE
+//* TRIGGERS: BILLJOB
+//*
+//* DESCRIPTION:
+//*   Runs PAYROLL.CBL to process monthly salaries for 50,000 staff.
+//*   Calls TAXCALC for tax computation and CREDITVAL for advance
+//*   validation. Output feeds BILLJOB downstream.
+//*
+//* KNOWN ISSUES:
+//*   INCIDENT-001 (Jan 2024): EMP.MASTER.DATA space exhaustion at
+//*   record 47,832. Fixed by increasing SPACE allocation.
+//*
+//JOBLIB   DD DSN=PROD.LOADLIB,DISP=SHR
+//*
+//****** STEP 010 — PAYROLL PROCESSING ******
+//STEP010  EXEC PGM=PAYROLL,
+//             REGION=512M,
+//             PARM='MONTH-END,FULL-RUN'
+//STEPLIB  DD DSN=PROD.LOADLIB,DISP=SHR
+//EMPFILE  DD DSN=EMP.MASTER.DATA,
+//            DISP=SHR
+//TIMEFILE DD DSN=TIME.SHEET.DATA,
+//            DISP=SHR
+//TAXRATES DD DSN=TAX.RATE.DATA,
+//            DISP=SHR
+//CREDMAST DD DSN=CREDIT.MASTER.DATA,
+//            DISP=SHR
+//PAYOUT   DD DSN=PAYROLL.OUT.DATA,
+//            DISP=(NEW,CATLG,DELETE),
+//            SPACE=(TRK,(200,20),RLSE),
+//            DCB=(RECFM=FB,LRECL=200,BLKSIZE=0)
+//AUDITOUT DD DSN=AUDIT.DATA,
+//            DISP=(MOD,KEEP,KEEP)
+//CREDAUDT DD DSN=CREDIT.AUDIT.LOG,
+//            DISP=(MOD,KEEP,KEEP)
+//SYSOUT   DD SYSOUT=*
+//SYSPRINT DD SYSOUT=*
+//SYSUDUMP DD SYSOUT=*
+//*
+//****** STEP 020 — VERIFY OUTPUT ******
+//STEP020  EXEC PGM=IEFBR14,COND=(0,NE,STEP010)
+//VERIFYDS DD DSN=PAYROLL.OUT.DATA,DISP=SHR
+//*

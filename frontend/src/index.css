@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body { background:#0D1828; color:#D2E4F2; font-family:'Inter',system-ui,sans-serif; }
+
+::-webkit-scrollbar { width:6px; }
+::-webkit-scrollbar-track { background:#0D1828; }
+::-webkit-scrollbar-thumb { background:#1A2C47; border-radius:3px; }
+
+.pulse-red { animation: pulse-r 2s infinite; }
+@keyframes pulse-r {
+  0%,100% { opacity:1; }
+  50%      { opacity:.4; }
+}
