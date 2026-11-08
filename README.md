@@ -171,26 +171,7 @@ frontend/src/          React + Vite + Tailwind UI
 
 ---
 
-## A note on Gemini's free tier
 
-The free tier is tight and inconsistent across models. A single chat turn can burn several requests (one per tool call), and the wrong model choice can cap you at ~20 requests/day. If chat stops responding:
-
-- Check `GEMINI_MODEL` in `.env` — `gemini-flash-lite-latest` has the highest free quota
-- Or enable billing on your Google AI project — the costs are very small for this use case
-
-The alert engine and AI scheduling advisor work independently of the chat tab and are unaffected by this.
-
----
-
-## Why not Claude directly?
-
-The original version called Anthropic's Claude. Anthropic's remote MCP connector requires servers reachable from Anthropic's cloud — these three MCP servers run on `localhost`, which can never satisfy that. Gemini's MCP integration works with local servers, so MAIA switched to Gemini + LangChain. LangChain also adds free LangSmith tracing with no code changes.
-
----
-
-## The original vision
-
-This repo is the working prototype behind a broader pitch presented at the LFX Mentorship Summer 2025 Showcase. The [poster (PDF)](DB%20buffer%20pool%20optimisation%20Capacity%20planning%20per%20LPAR%20(59.4%20x%2084.1%20cm)%20(1).pdf) covers the full six-layer vision — including pieces not yet built in this codebase: a LangGraph-orchestrated multi-agent brain, a live z/OSMF connection instead of a simulator, and 2 of the 4 specialist agents described (Cost Intelligence and Modernisation are conceptual; the alert engine and AI scheduling advisor in this repo are the working, narrower stand-ins for that same idea).
 
 ---
 
